@@ -6,7 +6,7 @@
       </div>
       <!-- 边界到名称的宽度 -->
       <!-- 登入表单 -->
-      <el-form label-width="0px" :model="loginForm" :rules="loginRules">
+      <el-form ref="loginFormRef" label-width="0px" :model="loginForm" :rules="loginRules">
         <el-form-item prop="username">
           <el-input v-model="loginForm.username"></el-input>
         </el-form-item>
@@ -14,8 +14,8 @@
           <el-input v-model="loginForm.password"></el-input>
         </el-form-item>
         <el-form-item class="btns">
-          <el-button type="primary">登入</el-button>
-          <el-button type="info">重置</el-button>
+          <el-button type="primary" @click="login">登入</el-button>
+          <el-button type="info" @click="resetLoginForm">重置</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -31,11 +31,35 @@ export default {
         username: 'lisi',
         password: '123456'
       },
-      // 表單驗證規則對象
+      // 表单验证规则对象
       loginRules: {
-        username: [{ required: true, message: '请输入用戶名', trigger: 'blur' }, { min: 3, max: 15, message: '长度在 3 到 15 个字符', trigger: 'blur' }],
-        password: [{ required: true, message: '请输入密碼', trigger: 'blur' }, { min: 6, max: 18, message: '密碼长度在 6 到 18 个字符', trigger: 'blur' }]
+        username: [{ required: true, message: '请输入用户名', trigger: 'blur' }, { min: 3, max: 15, message: '用戶名长度在 3 到 15 个字符', trigger: 'blur' }],
+        password: [{ required: true, message: '请输入密码', trigger: 'blur' }, { min: 6, max: 18, message: '密碼长度在 6 到 18 个字符', trigger: 'blur' }]
       }
+    }
+  },
+  methods: {
+    // 重置表单
+    resetLoginForm () {
+      this.$refs.loginFormRef.resetFields()
+    },
+    // 登入
+    login () {
+      this.$refs.loginFormRef.validate(async (vaild) => {
+        if (!vaild) return
+        // 发请求
+        const { data: res } = await this.$http.post('login',this.loginForm)
+        if (res.meta.status !== 200) {return this.$message({
+          message:'登入失败',
+          type:'error'
+        })
+        }
+        this.$message.success('登入成功')
+        // 把token保存起来
+        window.sessionStorage.setItem('token', res.data.token)
+        // 跳转主页
+        this.$router.push('/home')
+      })
     }
   }
 }
