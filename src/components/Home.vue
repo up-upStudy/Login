@@ -11,16 +11,17 @@
         </el-header>
     <el-container>
         <!-- 侧边栏 -->
-        <el-aside width="200px">
+        <el-aside :width="isCollapse ? '64px' : '200px'">
+            <div class="toggle-button" @click="toggleCollapse">|||</div>
     <el-menu background-color="#545c64" text-color="#fff"
-      active-text-color="#ffd04b" unique-opened>
+      active-text-color="#409eff" unique-opened :collapse="isCollapse" :collapse-transition="false" :router="true">
       <el-submenu :index="item.id+''" v-for="item in menulist" :key="item.id">
         <template slot="title">
-          <i :class="iconsObject['125']"></i>
+          <i :class="iconsObject[item.id]"></i><!-- 动态绑定 -->
           <span>{{item.authName}}</span>
         </template>
         <!-- 二级菜单 -->
-          <el-menu-item index="1-4-1" v-for="subItem in item.children" :key="subItem.id">
+          <el-menu-item :index="subItem.path+''" v-for="subItem in item.children" :key="subItem.id">
               <template slot="title">
           <i class="el-icon-menu"></i>
           <span>{{subItem.authName}}</span>
@@ -30,7 +31,9 @@
     </el-menu>
         </el-aside>
         <!-- 右侧内容 -->
-    <el-main>Main</el-main>
+    <el-main>
+        <router-view></router-view>
+    </el-main>
     </el-container>
     </el-container>   
 </template>
@@ -42,8 +45,12 @@
                 menulist:[], //侧边栏的菜单数据
                 iconsObject:{
                     125:"el-icon-s-custom",
-                    103:"el-icon-user"
-                }
+                    103:"el-icon-user",
+                    101:"el-icon-goods",
+                    102:"el-icon-s-order",
+                    145:"el-icon-s-data"
+                },
+                isCollapse:false
             }
         },
         created(){
@@ -59,9 +66,11 @@
             async getMenuList() {
             //get menus
                 const {data: res} = await this.$http.get('menus')
-                console.log(res);
                 if(res.meta.status !== 200) return this.$message.error('获取菜单列表失败')
                 this.menulist=res.data
+            },
+            toggleCollapse(){
+                this.isCollapse=!this.isCollapse
             }
         }
     }
@@ -91,10 +100,20 @@
         }
     }
     .el-aside{
+        width:"200px";
         background-color: #333744;
         .el-menu{
             border-right: 0px;
         }
+    }
+    .toggle-button{
+        background-color: #4a5046;
+        color: #fff;
+        text-align: center;
+        font-size: 10px;
+        cursor: pointer;
+        line-height: 24px;
+        letter-spacing: 0.2em;
     }
     .el-main{
         background-color: #eaedf1;

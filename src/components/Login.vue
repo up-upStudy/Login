@@ -51,11 +51,10 @@ export default {
         if (!vaild) return
         // 发请求，data：res写一个别名
         const { data: res } = await this.$http.post('login',this.loginForm)
-        if (res.meta.status !== 200) {return this.$message({
+        if (res.meta.status !== 200) return this.$message({
           message:'登入失败',
           type:'error'
         })
-        }
         this.$message.success('登入成功')
         // 把token保存起来
         window.sessionStorage.setItem('token', res.data.token)
